@@ -57,6 +57,7 @@ class StreamSerial(IStream):
             self.serial = serial.Serial(dev, baudrate)
         except:
             CONFIG.LOGGER.error("Couldn't open " + dev)
+            close()
             traceback.print_exc()
 
     def write(self, data):
@@ -70,6 +71,9 @@ class StreamSerial(IStream):
             CONFIG.LOGGER.debug("RX Raw: " + binascii.hexlify(pkt).decode('utf-8'))
 
         return pkt[0]
+
+    def close(self):
+        self.serial.close()
 
 
 class StreamSocket(IStream):
