@@ -71,6 +71,9 @@ class StreamSerial(IStream):
 
         return pkt[0]
 
+    def close(self):
+        self.serial.close()
+
 
 class StreamSocket(IStream):
     """ An IStream interface implementation over an internet socket. """
