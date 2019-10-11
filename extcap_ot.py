@@ -30,6 +30,7 @@ from enum import Enum
 # Nodeid is required to execute ot-ncp-ftd for its sim radio socket port.
 # This is maximum that works for MacOS.
 DEFAULT_NODEID = 34
+DEFAULT_CHANNEL = 11
 COMMON_BAUDRATE = [460800, 115200, 9600]
 
 class Config(Enum):
@@ -85,21 +86,28 @@ def serialopen(interface,  __console__, DirtylogFile):
     stream.close()
 
 def detect_baudrate(interface):
-    right_baudrate = None
+    baudrate = None
 
     for speed in COMMON_BAUDRATE:
         stream = StreamOpen('u', interface, False, baudrate=speed)
+
         wpan_api = WpanApi(stream, nodeid=DEFAULT_NODEID)
+
+        # result is None for NCP, not None for RCP
         result = wpan_api.prop_set_value(SPINEL.PROP_PHY_ENABLED, 1)
-        if not result:
+
+        # result should not be None for both NCP and RCP
+        result = wpan_api.prop_set_value(SPINEL.PROP_PHY_CHAN, DEFAULT_CHANNEL)
+
+        if result is None:
             stream.close()
             continue
         else:
-            right_baudrate = speed
+            baudrate = speed
             break
 
     stream.close()
-    return right_baudrate
+    return baudrate
 
 def extcap_baudrate(interface):
     baudrate = detect_baudrate(interface)
