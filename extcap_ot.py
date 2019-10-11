@@ -17,6 +17,7 @@
 #
 import os
 import sys
+import tempfile
 import argparse
 import subprocess
 import threading
@@ -117,7 +118,7 @@ def extcap_baudrate(interface):
 def extcap_interfaces():
     """List available interfaces to capture from"""
     __console__ = sys.stdout
-    DirtylogFile = open('dirtylog', 'w')
+    DirtylogFile = open(os.path.join(tempfile.gettempdir(), 'dirtylog'), 'w')
     print('extcap {version=0.0.0}{display=OpenThread Sniffer}{help=https://github.com/openthread/pyspinel}')
 
     for interface in comports():
@@ -129,7 +130,8 @@ def extcap_capture(interface, fifo, control_in, control_out, channel, tap):
     baudrate = detect_baudrate(interface)
 
     if baudrate is not None:
-        cmd = ['python', 'sniffer.py', '-c', channel, '-u', interface, '--rssi', '-b', str(baudrate), '-o', str(fifo)]
+        #cmd = ['python', 'sniffer.py', '-c', channel, '-u', interface, '--rssi', '-b', str(baudrate), '-o', str(fifo)]
+        cmd = ['sniffer.py', '-c', channel, '-u', interface, '--rssi', '-b', str(baudrate), '-o', str(fifo)]
         if tap:
             cmd.append('--tap')
         subprocess.Popen(cmd).wait()
